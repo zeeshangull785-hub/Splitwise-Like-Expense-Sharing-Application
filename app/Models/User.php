@@ -2,46 +2,64 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Auth\Authenticatable;
 
-class User extends Authenticatable
+class User extends Model implements AuthenticatableContract
 {
-    use HasFactory, Notifiable;
+    use Authenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $connection = 'mongodb';
+    protected $collection = 'users';
+
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * User's active tokens in the tokens collection.
      */
-    protected function casts(): array
+    public function tokens()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Token::class, 'user_id', '_id');
+    }
+
+    /**
+     * Groups owned by the user.
+     */
+    public function ownedGroups()
+    {
+        return $this->hasMany(Group::class, 'owner_id', '_id');
+    }
+
+    /**
+     * Expenses where user was the payer.
+     */
+    public function paidExpenses()
+    {
+        return $this->hasMany(Expense::class, 'paid_by', '_id');
+    }
+
+    /**
+     * Settlements paid by the user.
+     */
+    public function paidSettlements()
+    {
+        return $this->hasMany(Settlement::class, 'paid_by', '_id');
+    }
+
+    /**
+     * Settlements received by the user.
+     */
+    public function receivedSettlements()
+    {
+        return $this->hasMany(Settlement::class, 'paid_to', '_id');
     }
 }
