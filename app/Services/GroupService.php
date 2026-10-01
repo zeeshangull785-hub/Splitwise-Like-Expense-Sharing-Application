@@ -121,4 +121,42 @@ class GroupService
 
         return $group;
     }
+
+    /**
+     * Update group details (owner only).
+     */
+    public function updateGroup(Group $group, User $actor, array $data): Group
+    {
+        if (!$group->isOwner((string)$actor->_id)) {
+            Log::warning('Non-owner tried to update group', ['group_id' => (string)$group->_id, 'user_id' => (string)$actor->_id]);
+            throw new UnauthorizedGroupAccessException('Only the group owner can update group details.');
+        }
+
+        if (isset($data['name'])) {
+            $group->name = trim($data['name']);
+        }
+        if (array_key_exists('description', $data)) {
+            $group->description = $data['description'];
+        }
+
+        $group->save();
+        Log::info('Group updated', ['group_id' => (string)$group->_id]);
+
+        return $group;
+    }
+
+    /**
+     * Delete a group (owner only).
+     */
+    public function deleteGroup(Group $group, User $actor): void
+    {
+        if (!$group->isOwner((string)$actor->_id)) {
+            Log::warning('Non-owner tried to delete group', ['group_id' => (string)$group->_id, 'user_id' => (string)$actor->_id]);
+            throw new UnauthorizedGroupAccessException('Only the group owner can delete this group.');
+        }
+
+        $groupId = (string)$group->_id;
+        $group->delete();
+        Log::info('Group deleted', ['group_id' => $groupId]);
+    }
 }

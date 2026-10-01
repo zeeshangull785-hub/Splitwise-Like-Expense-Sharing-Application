@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateGroupRequest;
+use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Requests\AddGroupMemberRequest;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\UserResource;
@@ -59,6 +60,31 @@ class GroupController extends Controller
             new GroupResource($group),
             'Group retrieved successfully.'
         );
+    }
+
+    /**
+     * Update a group (owner only).
+     */
+    public function update(string $groupId, UpdateGroupRequest $request): JsonResponse
+    {
+        $group = $this->groupService->getGroupForUser($groupId, $request->user());
+        $updatedGroup = $this->groupService->updateGroup($group, $request->user(), $request->validated());
+
+        return $this->successResponse(
+            new GroupResource($updatedGroup),
+            'Group updated successfully.'
+        );
+    }
+
+    /**
+     * Delete a group (owner only).
+     */
+    public function destroy(string $groupId, Request $request): JsonResponse
+    {
+        $group = $this->groupService->getGroupForUser($groupId, $request->user());
+        $this->groupService->deleteGroup($group, $request->user());
+
+        return $this->successResponse(null, 'Group deleted successfully.');
     }
 
     /**

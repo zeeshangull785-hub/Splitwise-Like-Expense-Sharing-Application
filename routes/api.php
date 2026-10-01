@@ -26,6 +26,9 @@ Route::middleware('auth.token')->group(function () {
     Route::get('/groups', [GroupController::class, 'index']);
     Route::post('/groups', [GroupController::class, 'store']);
     Route::get('/groups/{group}', [GroupController::class, 'show']);
+    Route::put('/groups/{group}', [GroupController::class, 'update']);
+    Route::patch('/groups/{group}', [GroupController::class, 'update']);
+    Route::delete('/groups/{group}', [GroupController::class, 'destroy']);
     Route::get('/groups/{group}/members', [GroupController::class, 'members']);
     Route::post('/groups/{group}/members', [GroupController::class, 'addMember']);
     Route::delete('/groups/{group}/members/{user}', [GroupController::class, 'removeMember']);

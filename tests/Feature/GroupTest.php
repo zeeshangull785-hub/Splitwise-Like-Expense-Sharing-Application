@@ -139,4 +139,54 @@ class GroupTest extends TestCase
         $response->assertStatus(403)
             ->assertJsonPath('success', false);
     }
+
+    public function test_owner_can_update_and_delete_group(): void
+    {
+        $group = Group::create([
+            'name' => 'Old Group Name',
+            'owner_id' => (string)$this->owner->_id,
+            'member_ids' => [(string)$this->owner->_id],
+        ]);
+
+        // Update
+        $updateResponse = $this->withHeader('Authorization', 'Bearer ' . $this->ownerToken)
+            ->putJson("/api/groups/{$group->_id}", [
+                'name' => 'Updated Group Name',
+                'description' => 'Updated Description',
+            ]);
+
+        $updateResponse->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.name', 'Updated Group Name');
+
+        // Delete
+        $deleteResponse = $this->withHeader('Authorization', 'Bearer ' . $this->ownerToken)
+            ->deleteJson("/api/groups/{$group->_id}");
+
+        $deleteResponse->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertNull(Group::find((string)$group->_id));
+    }
+
+    public function test_non_owner_cannot_update_or_delete_group(): void
+    {
+        $group = Group::create([
+            'name' => 'Group for Member',
+            'owner_id' => (string)$this->owner->_id,
+            'member_ids' => [(string)$this->owner->_id, (string)$this->member->_id],
+        ]);
+
+        $updateResponse = $this->withHeader('Authorization', 'Bearer ' . $this->memberToken)
+            ->putJson("/api/groups/{$group->_id}", [
+                'name' => 'Hacked Name',
+            ]);
+
+        $updateResponse->assertStatus(403);
+
+        $deleteResponse = $this->withHeader('Authorization', 'Bearer ' . $this->memberToken)
+            ->deleteJson("/api/groups/{$group->_id}");
+
+        $deleteResponse->assertStatus(403);
+    }
 }
