@@ -1,0 +1,390 @@
+{
+	"info": {
+		"_postman_id": "splitwise-api-collection-2026",
+		"name": "Splitwise Backend API (Laravel + MongoDB)",
+		"description": "Complete Postman collection for testing the Splitwise-like expense sharing backend application with random token authorization, MongoDB document modeling, equal/exact/percentage expense splits, balance calculations, debt simplification, and settlements.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Ali Khan\",\n    \"email\": \"ali@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"ali@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						}
+					}
+				},
+				{
+					"name": "User Profile (Me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "me"]
+						}
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "logout"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Groups",
+			"item": [
+				{
+					"name": "List User Groups",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups"]
+						}
+					}
+				},
+				{
+					"name": "Create Group",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dubai Trip\",\n    \"description\": \"Expenses for Dubai holiday vacation\",\n    \"initial_members\": []\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/groups",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups"]
+						}
+					}
+				},
+				{
+					"name": "Get Group Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Group Members",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "members"]
+						}
+					}
+				},
+				{
+					"name": "Add Member to Group",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"{{member_user_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "members"]
+						}
+					}
+				},
+				{
+					"name": "Remove Member from Group",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/members/{{member_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "members", "{{member_user_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Expenses",
+			"item": [
+				{
+					"name": "List Group Expenses (Paginated & Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/expenses?page=1&per_page=10&split_type=equal",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "expenses"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "per_page", "value": "10" },
+								{ "key": "split_type", "value": "equal" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Equal Split Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Dinner\",\n    \"amount\": 12000,\n    \"split_type\": \"equal\",\n    \"category\": \"Food\",\n    \"participants\": [\n        { \"user_id\": \"{{user_1_id}}\" },\n        { \"user_id\": \"{{user_2_id}}\" },\n        { \"user_id\": \"{{user_3_id}}\" },\n        { \"user_id\": \"{{user_4_id}}\" }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/expenses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "expenses"]
+						}
+					}
+				},
+				{
+					"name": "Create Exact Split Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Marina Seafood Feast\",\n    \"amount\": 10000,\n    \"split_type\": \"exact\",\n    \"category\": \"Food\",\n    \"participants\": [\n        { \"user_id\": \"{{user_1_id}}\", \"amount\": 4000 },\n        { \"user_id\": \"{{user_2_id}}\", \"amount\": 3000 },\n        { \"user_id\": \"{{user_3_id}}\", \"amount\": 2000 },\n        { \"user_id\": \"{{user_4_id}}\", \"amount\": 1000 }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/expenses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "expenses"]
+						}
+					}
+				},
+				{
+					"name": "Create Percentage Split Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Desert Safari & Quad Biking\",\n    \"amount\": 8000,\n    \"split_type\": \"percentage\",\n    \"category\": \"Entertainment\",\n    \"participants\": [\n        { \"user_id\": \"{{user_1_id}}\", \"percentage\": 40 },\n        { \"user_id\": \"{{user_2_id}}\", \"percentage\": 30 },\n        { \"user_id\": \"{{user_3_id}}\", \"percentage\": 20 },\n        { \"user_id\": \"{{user_4_id}}\", \"percentage\": 10 }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/expenses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "expenses"]
+						}
+					}
+				},
+				{
+					"name": "Get Expense Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "expenses", "{{expense_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Expense",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Updated Dinner Description\",\n    \"amount\": 14000,\n    \"split_type\": \"equal\",\n    \"participants\": [\n        { \"user_id\": \"{{user_1_id}}\" },\n        { \"user_id\": \"{{user_2_id}}\" },\n        { \"user_id\": \"{{user_3_id}}\" },\n        { \"user_id\": \"{{user_4_id}}\" }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "expenses", "{{expense_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Expense",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/expenses/{{expense_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "expenses", "{{expense_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Balances & Settlements",
+			"item": [
+				{
+					"name": "Get Group Balances & Debt Simplification",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/balances",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "balances"]
+						}
+					}
+				},
+				{
+					"name": "List Group Settlements",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/settlements",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "settlements"]
+						}
+					}
+				},
+				{
+					"name": "Record Settlement Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{auth_token}}" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paid_to\": \"{{creditor_user_id}}\",\n    \"amount\": 1000,\n    \"note\": \"Settlement via Bank Transfer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/groups/{{group_id}}/settlements",
+							"host": ["{{base_url}}"],
+							"path": ["api", "groups", "{{group_id}}", "settlements"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "base_url", "value": "http://127.0.0.1:8000" },
+		{ "key": "auth_token", "value": "" },
+		{ "key": "group_id", "value": "" },
+		{ "key": "expense_id", "value": "" },
+		{ "key": "user_1_id", "value": "" },
+		{ "key": "user_2_id", "value": "" },
+		{ "key": "user_3_id", "value": "" },
+		{ "key": "user_4_id", "value": "" },
+		{ "key": "creditor_user_id", "value": "" },
+		{ "key": "member_user_id", "value": "" }
+	]
+}
